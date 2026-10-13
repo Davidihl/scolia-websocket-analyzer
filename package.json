@@ -1,12 +1,13 @@
 {
   "name": "scolia-score-reader",
   "version": "1.0.0",
-  "description": "Chrome extension that logs Scolia WebSocket messages to the DevTools console.",
+  "description": "Chrome extension that reports finished Scolia matches to a fusion-local darts season.",
   "scripts": {
     "build": "node build.mjs",
     "watch": "node build.mjs --watch",
     "typecheck": "tsc --noEmit",
-    "icons": "for s in 16 32 48 128; do sips -z $s $s android-chrome-512x512.png --out public/icons/icon-$s.png; done"
+    "icons": "for s in 16 32 48 128; do sips -z $s $s android-chrome-512x512.png --out public/icons/icon-$s.png; done",
+    "test": "node test.mjs"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +15,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@types/chrome": "^0.3.5",
+    "@types/node": "^22.20.5",
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2"
   }

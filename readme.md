@@ -25,7 +25,7 @@ Other fields of interest in the user capture:
 - `scoreboard.sets[].legs[].startingPlayerUserId`: who threw first in each leg.
 - `history.sets[].legs[].rounds`: per-visit throws. `throwMode` is `ManuallyAdded` for entered or detected darts and `AddedByTheGameService` for filler darts after a checkout or a skipped visit.
 
-Unverified: whether nicknames are already present at the start of a user game. The guest capture's `BULL_THROW::GAME_CURRENT_STATE` only carries IDs. Capture a user game's start to check.
+The start snapshots also carry a nickname per player ID: `BULL_THROW::GAME_CURRENT_STATE` in `payload.gameState.players[id].nickname`, and `GAME::GAME_CURRENT_STATE` in `payload.state.game.players[id].nickname`, alongside `playerType`. In the guest capture the nickname is just the label (`"Player 1"`). It is likely that a user game carries the real nickname there, but that is unverified until a user game's start is captured.
 
 # Event types
 

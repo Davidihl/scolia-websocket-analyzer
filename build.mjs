@@ -11,6 +11,8 @@ const copyPublic = () => {
 const ctx = await esbuild.context({
   entryPoints: {
     "websocket-logger": "src/index.ts",
+    bridge: "src/bridge.ts",
+    background: "src/background.ts",
     options: "src/options.ts",
   },
   outdir: "dist",

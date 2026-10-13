@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Scolia Score Reader",
   "version": "1.0.0",
-  "description": "Logs incoming WebSocket messages to DevTools.",
+  "description": "Reports finished Scolia matches to a fusion-local darts season.",
   "permissions": [
     "storage"
   ],
@@ -23,6 +23,9 @@
       "32": "icons/icon-32.png"
     }
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": [
@@ -34,6 +37,17 @@
       ],
       "run_at": "document_start",
       "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://game.scoliadarts.com/game",
+        "https://game.scoliadarts.com/game/*"
+      ],
+      "js": [
+        "bridge.js"
+      ],
+      "run_at": "document_start",
+      "world": "ISOLATED"
     }
   ],
   "options_ui": {

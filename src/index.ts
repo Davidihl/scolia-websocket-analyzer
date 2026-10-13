@@ -1,5 +1,6 @@
 import { config } from "./config";
 import { requestConsent } from "./consent";
+import { BRIDGE_SOURCE, FORWARDED_TYPES, type BridgeEnvelope, type ScoliaMessage } from "./protocol";
 
 type Direction = "RX" | "TX";
 
@@ -45,6 +46,15 @@ const logMessage = ({ direction, url, data, time }: Entry) => {
   console.groupEnd();
 };
 
+// Hands game events to the ISOLATED-world bridge, independent of console logging.
+const forward = (data: unknown) => {
+  const message = parsePayload(data);
+  const type = getEventType(message);
+  if (!type || !FORWARDED_TYPES.has(type)) return;
+  const envelope: BridgeEnvelope = { source: BRIDGE_SOURCE, message: message as ScoliaMessage };
+  window.postMessage(envelope, location.origin);
+};
+
 // "pending" buffers messages until the user answers the consent modal.
 let state: "pending" | "enabled" | "disabled" = config.askBeforeLogging
   ? "pending"
@@ -74,6 +84,7 @@ window.WebSocket = new Proxy(OriginalWebSocket, {
 
     if (isWatchedSocket(socket.url)) {
       socket.addEventListener("message", (event) => {
+        forward(event.data);
         handle({ direction: "RX", url: socket.url, data: event.data, time: new Date() });
       });
       console.log("[WebSocket] Watching:", socket.url);
