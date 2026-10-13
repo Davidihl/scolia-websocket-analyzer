@@ -3,14 +3,17 @@ import fs from "node:fs";
 
 const watch = process.argv.includes("--watch");
 
-const copyManifest = () => {
-  fs.mkdirSync("dist", { recursive: true });
-  fs.copyFileSync("manifest.json", "dist/manifest.json");
+// Static files (manifest, HTML) are copied as-is into dist/.
+const copyPublic = () => {
+  fs.cpSync("public", "dist", { recursive: true });
 };
 
 const ctx = await esbuild.context({
-  entryPoints: ["src/index.ts"],
-  outfile: "dist/websocket-logger.js",
+  entryPoints: {
+    "websocket-logger": "src/index.ts",
+    options: "src/options.ts",
+  },
+  outdir: "dist",
   bundle: true,
   format: "iife",
   target: "chrome120",
@@ -18,9 +21,9 @@ const ctx = await esbuild.context({
   logLevel: "info",
   plugins: [
     {
-      name: "copy-manifest",
+      name: "copy-public",
       setup(build) {
-        build.onEnd(copyManifest);
+        build.onEnd(copyPublic);
       },
     },
   ],
@@ -28,7 +31,7 @@ const ctx = await esbuild.context({
 
 if (watch) {
   await ctx.watch();
-  fs.watch("manifest.json", copyManifest);
+  fs.watch("public", { recursive: true }, copyPublic);
 } else {
   await ctx.rebuild();
   await ctx.dispose();

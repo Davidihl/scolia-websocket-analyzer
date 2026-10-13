@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Scolia Score Reader settings</title>
+    <link rel="icon" href="icons/icon-32.png" />
+    <style>
+      body {
+        font: 14px/1.4 system-ui, sans-serif;
+        margin: 16px;
+        min-width: 360px;
+      }
+      label {
+        display: block;
+        margin-bottom: 12px;
+        font-weight: 600;
+      }
+      input {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 4px;
+        padding: 6px 8px;
+        font: inherit;
+        font-weight: normal;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      #status {
+        color: #555;
+      }
+      #status.error {
+        color: #b91c1c;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="form">
+      <label>
+        Endpoint
+        <input id="endpoint" type="url" placeholder="https://example.com/api/scores" />
+      </label>
+      <label>
+        Bearer token
+        <input id="bearerToken" type="password" autocomplete="off" />
+      </label>
+      <div class="row">
+        <button type="submit">Save</button>
+        <span id="status" role="status"></span>
+      </div>
+    </form>
+    <script src="options.js"></script>
+  </body>
+</html>

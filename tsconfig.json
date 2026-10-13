@@ -6,7 +6,9 @@
       "ES2022",
       "DOM"
     ],
-    "types": [],
+    "types": [
+      "chrome"
+    ],
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
