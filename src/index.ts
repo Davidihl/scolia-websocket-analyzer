@@ -1,6 +1,9 @@
 import { config } from "./config";
+import { requestConsent } from "./consent";
 
 type Direction = "RX" | "TX";
+
+type Entry = { direction: Direction; url: string; data: unknown; time: Date };
 
 const isWatchedSocket = (url: string) => {
   try {
@@ -26,7 +29,7 @@ const getEventType = (message: unknown): string | undefined => {
   return typeof type === "string" ? type : undefined;
 };
 
-const logMessage = (direction: Direction, url: string, data: unknown) => {
+const logMessage = ({ direction, url, data, time }: Entry) => {
   if (direction === "RX" ? !config.logIncoming : !config.logOutgoing) return;
 
   const message = parsePayload(data);
@@ -35,11 +38,32 @@ const logMessage = (direction: Direction, url: string, data: unknown) => {
   if (!isKnown && !config.logUnknownTypes) return;
 
   console.groupCollapsed(
-    `[WebSocket ${direction}] ${new Date().toISOString()} ${type ?? "(no type)"}`,
+    `[WebSocket ${direction}] ${time.toISOString()} ${type ?? "(no type)"}`,
   );
   console.log("URL:", url);
   console.log("Message:", message);
   console.groupEnd();
+};
+
+// "pending" buffers messages until the user answers the consent modal.
+let state: "pending" | "enabled" | "disabled" = config.askBeforeLogging
+  ? "pending"
+  : "enabled";
+let buffer: Entry[] = [];
+
+const handle = (entry: Entry) => {
+  if (state === "enabled") logMessage(entry);
+  else if (state === "pending") buffer.push(entry);
+};
+
+const onWatchedSocket = (url: string) => {
+  if (!config.askBeforeLogging) return;
+  void requestConsent(url).then((enabled) => {
+    state = enabled ? "enabled" : "disabled";
+    console.log(`[WebSocket Logger] Logging ${state}`);
+    if (enabled) buffer.forEach(logMessage);
+    buffer = [];
+  });
 };
 
 const OriginalWebSocket = window.WebSocket;
@@ -50,9 +74,10 @@ window.WebSocket = new Proxy(OriginalWebSocket, {
 
     if (isWatchedSocket(socket.url)) {
       socket.addEventListener("message", (event) => {
-        logMessage("RX", socket.url, event.data);
+        handle({ direction: "RX", url: socket.url, data: event.data, time: new Date() });
       });
       console.log("[WebSocket] Watching:", socket.url);
+      onWatchedSocket(socket.url);
     }
 
     return socket;
@@ -65,7 +90,9 @@ OriginalWebSocket.prototype.send = function (
   this: WebSocket,
   data: Parameters<WebSocket["send"]>[0],
 ) {
-  if (isWatchedSocket(this.url)) logMessage("TX", this.url, data);
+  if (isWatchedSocket(this.url)) {
+    handle({ direction: "TX", url: this.url, data, time: new Date() });
+  }
   return originalSend.call(this, data);
 };
 

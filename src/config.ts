@@ -23,6 +23,9 @@ export const config = {
   eventTypes: new Set<string>(EVENT_TYPES),
   // Also log messages whose `type` is not in `eventTypes` (useful for discovering new types).
   logUnknownTypes: false,
+  // Ask via a modal before logging. The answer only lasts until the page is reloaded.
+  // Messages that arrive while the modal is open are buffered and logged if you enable it.
+  askBeforeLogging: true,
   // Which directions to log.
   logIncoming: true,
   logOutgoing: false,
