@@ -1,8 +1,31 @@
 # Scolia stream: how a match is structured
 
-Findings from `completegame.json` (146 messages, one complete 2-player X01 match: race to 2 legs, start score 101, double out, Player 2 wins 2-1).
+Findings from two captures in `demo-data/`:
+
+- `completegame.json`: 146 messages of one complete 2-player X01 match between **guests**. Race to 2 legs, start score 101, double out, Player 2 wins 2-1.
+- `ended-statistics-users.json`: only the `GAME_ENDED_STATISTICS` message of a match between two **registered users** (Chaoslordi vs Roskato). Race to 3 legs, 101, double out, Roskato wins 3-0. The file is reduced: per-visit history (`history`) and detailed stat breakdowns were removed. The fields the extension reads are kept verbatim.
 
 Every message has the shape `{ id, type, payload }`.
+
+# Player identity: guests vs registered users
+
+How players are identified depends on the player type in `configuration.playerTypes.playerN`:
+
+| | Guest (`"Guest"`) | Registered user (`"User"`) |
+| --- | --- | --- |
+| Player IDs (`competitors[].id`, `statistics[].userId`, `winnerIds`, `history.*`, `scoreboard.*`) | The display label, e.g. `"Player 1"` | The Scolia user ID, a 24-hex ObjectId such as `"69e1306d8a9cfd2b6c393118"` |
+| `configuration.playerNames.playerN` | The display label | The user ID (not a name) |
+| `participants` | `[]` | `[{ _id, nickname }]`, the **only** human-readable name, e.g. `"Chaoslordi"` |
+
+So use `participants[].nickname` to get a user's name, and key everything else by ID. The order of `participants` does not follow `playerNames` or `competitors`.
+
+Other fields of interest in the user capture:
+
+- `boardNamesForParticipants`: board name per player ID, e.g. `"Austrian Force Hub"`.
+- `scoreboard.sets[].legs[].startingPlayerUserId`: who threw first in each leg.
+- `history.sets[].legs[].rounds`: per-visit throws. `throwMode` is `ManuallyAdded` for entered or detected darts and `AddedByTheGameService` for filler darts after a checkout or a skipped visit.
+
+Unverified: whether nicknames are already present at the start of a user game. The guest capture's `BULL_THROW::GAME_CURRENT_STATE` only carries IDs. Capture a user game's start to check.
 
 # Event types
 
@@ -101,9 +124,9 @@ const legs = g.statistics[0].sets.flatMap((s, si) =>
 );
 ```
 
-## Demo result
+## Demo results
 
-Player 2 wins 2-1 (24 darts vs 23 darts overall).
+`completegame.json` (guests): Player 2 wins 2-1 (24 darts vs 23 darts overall).
 
 | Leg | Player 2: darts / remaining | Player 1: darts / remaining | Winner   |
 | --- | --------------------------- | --------------------------- | -------- |
@@ -111,9 +134,19 @@ Player 2 wins 2-1 (24 darts vs 23 darts overall).
 | 2   | 6 / 30                      | 8 / 0                       | Player 1 |
 | 3   | 13 / 0                      | 12 / 5                      | Player 2 |
 
+`ended-statistics-users.json` (registered users): Roskato wins 3-0 (12 darts vs 12 darts overall).
+
+| Leg | Roskato: darts / remaining | Chaoslordi: darts / remaining | Winner  |
+| --- | -------------------------- | ----------------------------- | ------- |
+| 1   | 4 / 0                      | 3 / 61                        | Roskato |
+| 2   | 4 / 0                      | 6 / 101                       | Roskato |
+| 3   | 4 / 0                      | 3 / 41                        | Roskato |
+
 # Caveats
 
 - `statistics[]` is not in a fixed player order. Key by `userId`.
+- `userId` is a display label for guests and a Scolia user ID for registered users (see "Player identity"). Names for registered users only come from `participants[].nickname`.
+- `throwCount` counts filler darts too. In leg 2 of the user capture, Chaoslordi has `throwCount: 6`, but only one of those darts was thrown. The other five are `AddedByTheGameService` misses filling up visits.
 - The message arrives once. If the listener is disconnected at match end, the summary is lost, as far as the stream shows.
 - Aborted games are unverified. `GAME_DELETED` and `GAME_STATS` carry `isAborted`. It is unknown whether `GAME_ENDED_STATISTICS` is sent for an aborted game, so capture one to check.
 - Use `game.gameId` to de-duplicate in case a message is delivered twice.

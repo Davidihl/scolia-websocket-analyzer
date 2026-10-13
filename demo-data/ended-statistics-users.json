@@ -1,0 +1,108 @@
+{
+  "_note": "Reduced capture of GAME_ENDED_STATISTICS for two registered users. Per-leg/visit stat breakdowns (scoring, nthDartsAverage, history.rounds, …) were removed; every field the extension reads is kept verbatim.",
+  "id": "c0c68107-4eb8-402d-bc35-d46868965bbd",
+  "type": "API::GAME::GAME_ENDED_STATISTICS",
+  "payload": {
+    "game": {
+      "_id": "6acdfd38edc4cf3a0ee2adec",
+      "gameId": "8VBHS7RB5NTM",
+      "status": "Finished",
+      "participants": [
+        { "_id": "6978ddcba726e963e02fc94f", "nickname": "Chaoslordi" },
+        { "_id": "69e1306d8a9cfd2b6c393118", "nickname": "Roskato" }
+      ],
+      "botPlayers": [],
+      "type": "X01",
+      "startTime": "2026-10-13T09:43:20.624Z",
+      "netDuration": 158370,
+      "configuration": {
+        "scoreType": "RaceTo",
+        "sets": 1,
+        "legs": 3,
+        "gameOutType": "Double",
+        "gameInType": "Straight",
+        "isScoreCorrectionAllowed": true,
+        "startScore": 101,
+        "competitors": [
+          {
+            "id": "69e1306d8a9cfd2b6c393118",
+            "name": "Team 1",
+            "players": [{ "type": "User", "id": "69e1306d8a9cfd2b6c393118" }]
+          },
+          {
+            "id": "6978ddcba726e963e02fc94f",
+            "name": "Team 2",
+            "players": [{ "type": "User", "id": "6978ddcba726e963e02fc94f" }]
+          }
+        ],
+        "playerNr": 2,
+        "playerNames": {
+          "player1": "69e1306d8a9cfd2b6c393118",
+          "player2": "6978ddcba726e963e02fc94f",
+          "player3": "",
+          "player4": "",
+          "player5": "",
+          "player6": "",
+          "player7": "",
+          "player8": ""
+        },
+        "playerTypes": { "player1": "User", "player2": "User" },
+        "throwOrderType": "Bull",
+        "isScoreCorrectionApprovable": false,
+        "bullThrow": "WDF"
+      },
+      "statistics": [
+        {
+          "userId": "69e1306d8a9cfd2b6c393118",
+          "statistics": { "legsWon": 3, "setsWon": 1, "throwCount": 12, "totalScore": 303, "winner": true, "roundAvg": 75.75 },
+          "sets": [
+            {
+              "statistics": { "legsWon": 3, "throwCount": 12, "totalScore": 303, "winner": true },
+              "legs": [
+                { "statistics": { "legsWon": 1, "throwCount": 4, "totalScore": 101, "winner": true }, "remainingScores": [101, 41, 40, 40, 0] },
+                { "statistics": { "legsWon": 1, "throwCount": 4, "totalScore": 101, "winner": true }, "remainingScores": [101, 41, 40, 40, 0] },
+                { "statistics": { "legsWon": 1, "throwCount": 4, "totalScore": 101, "winner": true }, "remainingScores": [101, 41, 40, 20, 0] }
+              ]
+            }
+          ]
+        },
+        {
+          "userId": "6978ddcba726e963e02fc94f",
+          "statistics": { "legsWon": 0, "setsWon": 0, "throwCount": 12, "totalScore": 100, "winner": false, "roundAvg": 25 },
+          "sets": [
+            {
+              "statistics": { "legsWon": 0, "throwCount": 12, "totalScore": 100, "winner": false },
+              "legs": [
+                { "statistics": { "legsWon": 0, "throwCount": 3, "totalScore": 40, "winner": false }, "remainingScores": [101, 81, 61, 61] },
+                { "statistics": { "legsWon": 0, "throwCount": 6, "totalScore": 0, "winner": false }, "remainingScores": [101, 101, 101, 101, 101, 101, 101] },
+                { "statistics": { "legsWon": 0, "throwCount": 3, "totalScore": 60, "winner": false }, "remainingScores": [101, 41, 41, 41] }
+              ]
+            }
+          ]
+        }
+      ],
+      "winnerIds": ["69e1306d8a9cfd2b6c393118"],
+      "playerNumber": 2,
+      "isOnlineGame": false,
+      "boardNamesForParticipants": {
+        "69e1306d8a9cfd2b6c393118": "Austrian Force Hub",
+        "6978ddcba726e963e02fc94f": "Austrian Force Hub"
+      },
+      "scoreboard": {
+        "sets": [
+          {
+            "winnerPlayerUserIds": ["69e1306d8a9cfd2b6c393118"],
+            "score": { "69e1306d8a9cfd2b6c393118": 1, "6978ddcba726e963e02fc94f": 0 },
+            "legs": [
+              { "winnerPlayerUserId": "69e1306d8a9cfd2b6c393118", "startingPlayerUserId": "69e1306d8a9cfd2b6c393118", "score": { "69e1306d8a9cfd2b6c393118": 1, "6978ddcba726e963e02fc94f": 0 } },
+              { "winnerPlayerUserId": "69e1306d8a9cfd2b6c393118", "startingPlayerUserId": "6978ddcba726e963e02fc94f", "score": { "69e1306d8a9cfd2b6c393118": 2, "6978ddcba726e963e02fc94f": 0 } },
+              { "winnerPlayerUserId": "69e1306d8a9cfd2b6c393118", "startingPlayerUserId": "69e1306d8a9cfd2b6c393118", "score": { "69e1306d8a9cfd2b6c393118": 3, "6978ddcba726e963e02fc94f": 0 } }
+            ]
+          }
+        ],
+        "setNumber": 1,
+        "legNumber": 3
+      }
+    }
+  }
+}
