@@ -4,13 +4,12 @@ import type { Matchup, Season } from "./api";
 import type { RankedMatchup } from "./matching";
 import { configMismatches, type ConfirmRequest, type MatchFlowUi } from "./match-flow";
 import { minDarts, type ScoliaPlayer, type Sides } from "./scolia";
-import { h, mountShadow } from "./ui/shadow-modal";
+import { h, modalHeader, mountShadow } from "./ui/shadow-modal";
 
 const CSS = `
   label { display: block; margin: 12px 0 4px; font-weight: 600; }
   select { width: 100%; padding: 6px 8px; font: inherit; }
   .score { font-size: 18px; font-weight: 600; margin: 4px 0 8px; }
-  .hint { color: #555; font-size: 12px; }
   .warning { color: #92400e; background: #fef3c7; border-radius: 4px; padding: 6px 8px; margin-top: 12px; }
   .sides { display: grid; grid-template-columns: 1fr auto 1fr; gap: 4px 8px; align-items: center; }
   .sides .arrow { color: #888; }
@@ -238,7 +237,7 @@ const showConfirm = async (request: ConfirmRequest) => {
         h(
           "div",
           { class: "modal", role: "dialog", "aria-modal": "true" },
-          h("h2", {}, "Report result to the darts season"),
+          modalHeader("Report result to the darts season"),
           h("p", { class: "score" }, scoreLine),
           options.length === 0 &&
             h("p", { class: "warning" }, "There is no running season with open matchups."),

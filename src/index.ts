@@ -1,10 +1,8 @@
+// MAIN-world script: wraps window.WebSocket to see Scolia's game events. Relevant
+// events are logged to the console and handed to the ISOLATED-world bridge.
+
 import { config } from "./config";
-import { requestConsent } from "./consent";
-import { BRIDGE_SOURCE, FORWARDED_TYPES, type BridgeEnvelope, type ScoliaMessage } from "./protocol";
-
-type Direction = "RX" | "TX";
-
-type Entry = { direction: Direction; url: string; data: unknown; time: Date };
+import { BRIDGE_SOURCE, type BridgeEnvelope, type ScoliaMessage } from "./protocol";
 
 const isWatchedSocket = (url: string) => {
   try {
@@ -15,65 +13,29 @@ const isWatchedSocket = (url: string) => {
   }
 };
 
-const parsePayload = (data: unknown): unknown => {
-  if (typeof data !== "string") return data;
+const parseMessage = (data: unknown): ScoliaMessage | null => {
+  if (typeof data !== "string") return null;
   try {
-    return JSON.parse(data);
+    const message: unknown = JSON.parse(data);
+    if (typeof message !== "object" || message === null) return null;
+    return typeof (message as ScoliaMessage).type === "string" ? (message as ScoliaMessage) : null;
   } catch {
-    return data;
+    return null;
   }
 };
 
-const getEventType = (message: unknown): string | undefined => {
-  if (typeof message !== "object" || message === null) return undefined;
-  const { type } = message as { type?: unknown };
-  return typeof type === "string" ? type : undefined;
-};
+const post = (envelope: BridgeEnvelope) => window.postMessage(envelope, location.origin);
 
-const logMessage = ({ direction, url, data, time }: Entry) => {
-  if (direction === "RX" ? !config.logIncoming : !config.logOutgoing) return;
+const onMessage = (url: string, data: unknown) => {
+  const message = parseMessage(data);
+  if (!message || !config.eventTypes.has(message.type)) return;
 
-  const message = parsePayload(data);
-  const type = getEventType(message);
-  const isKnown = type !== undefined && config.eventTypes.has(type);
-  if (!isKnown && !config.logUnknownTypes) return;
-
-  console.groupCollapsed(
-    `[WebSocket ${direction}] ${time.toISOString()} ${type ?? "(no type)"}`,
-  );
+  console.groupCollapsed(`[Scolia Score Reader] ${new Date().toISOString()} ${message.type}`);
   console.log("URL:", url);
   console.log("Message:", message);
   console.groupEnd();
-};
 
-// Hands game events to the ISOLATED-world bridge, independent of console logging.
-const forward = (data: unknown) => {
-  const message = parsePayload(data);
-  const type = getEventType(message);
-  if (!type || !FORWARDED_TYPES.has(type)) return;
-  const envelope: BridgeEnvelope = { source: BRIDGE_SOURCE, message: message as ScoliaMessage };
-  window.postMessage(envelope, location.origin);
-};
-
-// "pending" buffers messages until the user answers the consent modal.
-let state: "pending" | "enabled" | "disabled" = config.askBeforeLogging
-  ? "pending"
-  : "enabled";
-let buffer: Entry[] = [];
-
-const handle = (entry: Entry) => {
-  if (state === "enabled") logMessage(entry);
-  else if (state === "pending") buffer.push(entry);
-};
-
-const onWatchedSocket = (url: string) => {
-  if (!config.askBeforeLogging) return;
-  void requestConsent(url).then((enabled) => {
-    state = enabled ? "enabled" : "disabled";
-    console.log(`[WebSocket Logger] Logging ${state}`);
-    if (enabled) buffer.forEach(logMessage);
-    buffer = [];
-  });
+  post({ source: BRIDGE_SOURCE, kind: "event", message });
 };
 
 const OriginalWebSocket = window.WebSocket;
@@ -83,28 +45,13 @@ window.WebSocket = new Proxy(OriginalWebSocket, {
     const socket: WebSocket = Reflect.construct(Target, args, newTarget);
 
     if (isWatchedSocket(socket.url)) {
-      socket.addEventListener("message", (event) => {
-        forward(event.data);
-        handle({ direction: "RX", url: socket.url, data: event.data, time: new Date() });
-      });
-      console.log("[WebSocket] Watching:", socket.url);
-      onWatchedSocket(socket.url);
+      socket.addEventListener("message", (event) => onMessage(socket.url, event.data));
+      console.log("[Scolia Score Reader] Watching:", socket.url);
+      post({ source: BRIDGE_SOURCE, kind: "socket", url: socket.url });
     }
 
     return socket;
   },
 });
 
-const originalSend = OriginalWebSocket.prototype.send;
-
-OriginalWebSocket.prototype.send = function (
-  this: WebSocket,
-  data: Parameters<WebSocket["send"]>[0],
-) {
-  if (isWatchedSocket(this.url)) {
-    handle({ direction: "TX", url: this.url, data, time: new Date() });
-  }
-  return originalSend.call(this, data);
-};
-
-console.log("[WebSocket Logger] Installed", config);
+console.log("[Scolia Score Reader] Installed, logging:", [...config.eventTypes]);

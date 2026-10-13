@@ -1,11 +1,11 @@
-// Asks once per page load whether logging should be enabled. The answer lives
-// only in memory, so a refresh asks again.
+// Asks once per page load whether the extension should track match results. The
+// answer lives only in memory, so a refresh asks again.
 
-import { h, mountShadow } from "./ui/shadow-modal";
+import { h, modalHeader, mountShadow } from "./ui/shadow-modal";
 
 let decision: Promise<boolean> | undefined;
 
-const showModal = async (url: string): Promise<boolean> => {
+const showModal = async (): Promise<boolean> => {
   const { root, close } = await mountShadow();
 
   return new Promise((resolve) => {
@@ -20,19 +20,18 @@ const showModal = async (url: string): Promise<boolean> => {
         h(
           "div",
           { class: "modal", role: "dialog", "aria-modal": "true" },
-          h("h2", {}, "Scolia Score Reader"),
+          modalHeader("Track match results?"),
           h(
             "p",
             {},
-            "Detected WebSocket ",
-            h("code", {}, url),
-            ". Log its messages to the console for this page load?",
+            "The extension can report finished matches on this board to your darts season. You confirm each result before it's sent.",
           ),
+          h("p", { class: "hint" }, "You'll be asked again after a reload."),
           h(
             "div",
             { class: "actions" },
             h("button", { onclick: answer(false) }, "Not now"),
-            h("button", { class: "primary", onclick: answer(true) }, "Enable logging"),
+            h("button", { class: "primary", onclick: answer(true) }, "Track results"),
           ),
         ),
       ),
@@ -40,4 +39,4 @@ const showModal = async (url: string): Promise<boolean> => {
   });
 };
 
-export const requestConsent = (url: string) => (decision ??= showModal(url));
+export const requestTracking = () => (decision ??= showModal());

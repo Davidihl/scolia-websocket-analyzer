@@ -19,6 +19,7 @@ await esbuild.build({
   target: "node22",
   sourcemap: "inline",
   external: ["node:*"],
+  loader: { ".png": "dataurl" },
 });
 
 const files = fs.readdirSync(".test-build").map((file) => `.test-build/${file}`);

@@ -1,6 +1,8 @@
 // Shared shell for UI injected into the Scolia page. A closed shadow root keeps the
 // page's styles out of our UI and ours out of the page.
 
+import logo from "../../public/icons/icon-128.png";
+
 export const whenBodyReady = () =>
   new Promise<HTMLElement>((resolve) => {
     if (document.body) return resolve(document.body);
@@ -24,8 +26,12 @@ const BASE_CSS = `
     max-height: calc(100vh - 32px); overflow: auto;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   }
-  h2 { margin: 0 0 8px; font-size: 16px; }
+  h2 { margin: 0; font-size: 16px; }
+  .header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .header img { width: 36px; height: 36px; flex: none; }
+  .header small { display: block; color: #666; font-size: 12px; }
   p { margin: 0 0 8px; }
+  .hint { color: #555; font-size: 12px; }
   code { word-break: break-all; font-size: 12px; }
   .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
   button {
@@ -66,3 +72,12 @@ export const h = <K extends keyof HTMLElementTagNameMap>(
   }
   return element;
 };
+
+/** Logo, extension name and title, so it's clear the dialog comes from the extension. */
+export const modalHeader = (title: string) =>
+  h(
+    "div",
+    { class: "header" },
+    h("img", { src: logo, alt: "" }),
+    h("div", {}, h("small", {}, "Scolia Score Reader"), h("h2", {}, title)),
+  );

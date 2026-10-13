@@ -20,6 +20,8 @@ const ctx = await esbuild.context({
   format: "iife",
   target: "chrome120",
   sourcemap: "inline",
+  // Lets page UI show the logo inline: the MAIN-world script can't load extension files.
+  loader: { ".png": "dataurl" },
   logLevel: "info",
   plugins: [
     {
