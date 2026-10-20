@@ -3,9 +3,11 @@
 `npm run build` writes one unpacked extension per browser (`npm run build:chrome` / `npm run build:firefox` build just one):
 
 - **Chrome**: `dist/chrome/`. Open `chrome://extensions`, enable Developer mode, click "Load unpacked" and pick the folder.
-- **Firefox** (128+): `dist/firefox/`. Open `about:debugging` → This Firefox → "Load Temporary Add-on…" and pick `dist/firefox/manifest.json`.
+- **Firefox** (140+, Android 142+): `dist/firefox/`. Open `about:debugging` → This Firefox → "Load Temporary Add-on…" and pick `dist/firefox/manifest.json`.
 
 Both builds come from the same `public/manifest.json`. For Firefox, `build.mjs` swaps the background service worker for `background.scripts` and adds the `browser_specific_settings.gecko` block. Firefox always treats host permissions as opt-in, which matches the existing `optional_host_permissions` flow on the options page.
+
+`npm run pack` builds both and zips them to `dist/scolia-score-reader-<browser>.zip` for store upload. Don't use Finder's "Compress": it adds `__MACOSX/` and `._*` files, which AMO flags.
 
 # Scolia stream: how a match is structured
 

@@ -9,7 +9,7 @@ const only = process.argv.find((arg) => arg.startsWith("--target="))?.split("=")
 
 const TARGETS = [
   { name: "chrome", esbuildTarget: "chrome120" },
-  { name: "firefox", esbuildTarget: "firefox128" },
+  { name: "firefox", esbuildTarget: "firefox140" },
 ].filter((target) => !only || target.name === only);
 
 if (TARGETS.length === 0) throw new Error(`Unknown target: ${only}`);
@@ -23,9 +23,11 @@ const patchManifest = (manifest, target) => {
     browser_specific_settings: {
       gecko: {
         id: "scolia-score-reader@sklera.tv",
-        strict_min_version: "128.0",
+        // data_collection_permissions needs Firefox 140 (desktop) / 142 (Android).
+        strict_min_version: "140.0",
         data_collection_permissions: { required: ["none"] },
       },
+      gecko_android: { strict_min_version: "142.0" },
     },
   };
 };
