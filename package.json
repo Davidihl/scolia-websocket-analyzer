@@ -1,9 +1,11 @@
 {
   "name": "scolia-score-reader",
   "version": "1.0.0",
-  "description": "Chrome extension that reports finished Scolia matches to a fusion-local darts season.",
+  "description": "Browser extension (Chrome + Firefox) that reports finished Scolia matches to a fusion-local darts season.",
   "scripts": {
     "build": "node build.mjs",
+    "build:chrome": "node build.mjs --target=chrome",
+    "build:firefox": "node build.mjs --target=firefox",
     "watch": "node build.mjs --watch",
     "typecheck": "tsc --noEmit",
     "icons": "for s in 16 32 48 128; do sips -z $s $s android-chrome-512x512.png --out public/icons/icon-$s.png; done",
