@@ -2,6 +2,8 @@
 // page's styles out of our UI and ours out of the page.
 
 import logo from "../../public/icons/icon-128.png";
+import { dialog } from "./classes";
+import css from "./styles.css";
 
 export const whenBodyReady = () =>
   new Promise<HTMLElement>((resolve) => {
@@ -11,49 +13,18 @@ export const whenBodyReady = () =>
     });
   });
 
-const BASE_CSS = `
-  :host { all: initial; }
-  * { box-sizing: border-box; }
-  .backdrop {
-    position: fixed; inset: 0; z-index: 2147483647;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
-    font: 14px/1.4 system-ui, sans-serif;
-  }
-  .modal {
-    background: #fff; color: #111; border-radius: 8px;
-    padding: 20px 24px; width: min(460px, calc(100vw - 32px));
-    max-height: calc(100vh - 32px); overflow: auto;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  }
-  h2 { margin: 0; font-size: 16px; }
-  .header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .header img { width: 36px; height: 36px; flex: none; }
-  .header small { display: block; color: #666; font-size: 12px; }
-  p { margin: 0 0 8px; }
-  .hint { color: #555; font-size: 12px; }
-  code { word-break: break-all; font-size: 12px; }
-  .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
-  button {
-    padding: 6px 14px; border-radius: 4px; border: 1px solid #ccc;
-    background: #fff; color: #111; cursor: pointer; font: inherit;
-  }
-  button.primary { background: #2563eb; border-color: #2563eb; color: #fff; }
-  button:disabled { opacity: 0.5; cursor: default; }
-`;
-
-export const mountShadow = async (css = "") => {
+export const mountShadow = async () => {
   const body = await whenBodyReady();
   const host = document.createElement("div");
   const root = host.attachShadow({ mode: "closed" });
   const style = document.createElement("style");
-  style.textContent = BASE_CSS + css;
+  style.textContent = css;
   root.append(style);
   body.append(host);
   return { root, close: () => host.remove() };
 };
 
-type Child = Node | string | null | undefined | false;
+export type Child = Node | string | null | undefined | false;
 
 /** Tiny DOM builder. Text always goes through text nodes, so page data can't inject HTML. */
 export const h = <K extends keyof HTMLElementTagNameMap>(
@@ -77,7 +48,20 @@ export const h = <K extends keyof HTMLElementTagNameMap>(
 export const modalHeader = (title: string) =>
   h(
     "div",
-    { class: "header" },
-    h("img", { src: logo, alt: "" }),
-    h("div", {}, h("small", {}, "Scolia Score Reader"), h("h2", {}, title)),
+    { class: "flex items-center gap-3" },
+    h("img", { src: logo, alt: "", class: "size-9 shrink-0" }),
+    h(
+      "div",
+      { class: "grid gap-0.5" },
+      h("small", { class: "text-xs text-muted-foreground" }, "Scolia Score Reader"),
+      h("h2", { class: "text-lg font-semibold leading-none" }, title),
+    ),
+  );
+
+/** Backdrop + dialog card, shadcn style. */
+export const modal = (...children: Child[]) =>
+  h(
+    "div",
+    { class: dialog.backdrop },
+    h("div", { class: dialog.content, role: "dialog", "aria-modal": "true" }, ...children),
   );

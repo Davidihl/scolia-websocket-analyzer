@@ -9,7 +9,7 @@ const status = document.querySelector<HTMLSpanElement>("#status")!;
 
 const showStatus = (text: string, isError = false) => {
   status.textContent = text;
-  status.classList.toggle("error", isError);
+  status.toggleAttribute("data-error", isError);
 };
 
 void loadSettings().then((settings) => {

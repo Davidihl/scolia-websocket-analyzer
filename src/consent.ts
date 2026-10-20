@@ -1,7 +1,8 @@
 // Asks once per page load whether the extension should track match results. The
 // answer lives only in memory, so a refresh asks again.
 
-import { h, modalHeader, mountShadow } from "./ui/shadow-modal";
+import { button, dialog, hint } from "./ui/classes";
+import { h, modal, modalHeader, mountShadow } from "./ui/shadow-modal";
 
 let decision: Promise<boolean> | undefined;
 
@@ -14,25 +15,23 @@ const showModal = async (): Promise<boolean> => {
       resolve(enabled);
     };
     root.append(
-      h(
-        "div",
-        { class: "backdrop" },
+      modal(
+        modalHeader("Track match results?"),
         h(
           "div",
-          { class: "modal", role: "dialog", "aria-modal": "true" },
-          modalHeader("Track match results?"),
+          { class: "grid gap-2" },
           h(
             "p",
             {},
             "The extension can report finished matches on this board to your darts season. You confirm each result before it's sent.",
           ),
-          h("p", { class: "hint" }, "You'll be asked again after a reload."),
-          h(
-            "div",
-            { class: "actions" },
-            h("button", { onclick: answer(false) }, "Not now"),
-            h("button", { class: "primary", onclick: answer(true) }, "Track results"),
-          ),
+          h("p", { class: hint }, "You'll be asked again after a reload."),
+        ),
+        h(
+          "div",
+          { class: dialog.footer },
+          h("button", { class: button.outline, onclick: answer(false) }, "Not now"),
+          h("button", { class: button.primary, onclick: answer(true) }, "Track results"),
         ),
       ),
     );

@@ -4,53 +4,43 @@
     <meta charset="utf-8" />
     <title>Scolia Score Reader settings</title>
     <link rel="icon" href="icons/icon-32.png" />
-    <style>
-      body {
-        font: 14px/1.4 system-ui, sans-serif;
-        margin: 16px;
-        min-width: 360px;
-      }
-      label {
-        display: block;
-        margin-bottom: 12px;
-        font-weight: 600;
-      }
-      input {
-        display: block;
-        width: 100%;
-        box-sizing: border-box;
-        margin-top: 4px;
-        padding: 6px 8px;
-        font: inherit;
-        font-weight: normal;
-      }
-      .row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      #status {
-        color: #555;
-      }
-      #status.error {
-        color: #b91c1c;
-      }
-    </style>
+    <link rel="stylesheet" href="options.css" />
   </head>
-  <body>
-    <form id="form">
-      <label>
-        Endpoint
-        <input id="endpoint" type="url" placeholder="https://fusion.example.com/api/v1/darts" />
-      </label>
-      <label>
-        Bearer token
-        <input id="bearerToken" type="password" autocomplete="off" />
-      </label>
-      <div class="row">
-        <button type="submit">Save</button>
-        <button type="button" id="test">Test connection</button>
-        <span id="status" role="status"></span>
+  <body class="min-w-[360px] bg-background p-4">
+    <form id="form" class="grid gap-4">
+      <div class="grid gap-2">
+        <label for="endpoint" class="text-sm font-medium leading-none select-none">Endpoint</label>
+        <input
+          id="endpoint"
+          type="url"
+          placeholder="https://fusion.example.com/api/v1/darts"
+          class="h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30"
+        />
+      </div>
+      <div class="grid gap-2">
+        <label for="bearerToken" class="text-sm font-medium leading-none select-none">Bearer token</label>
+        <input
+          id="bearerToken"
+          type="password"
+          autocomplete="off"
+          class="h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30"
+        />
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="submit"
+          class="inline-flex h-9 cursor-pointer items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs outline-none transition-all hover:bg-primary/90 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          id="test"
+          class="inline-flex h-9 cursor-pointer items-center justify-center rounded-md border bg-background px-4 text-sm font-medium shadow-xs outline-none transition-all hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:border-input dark:bg-input/30 dark:hover:bg-input/50"
+        >
+          Test connection
+        </button>
+        <span id="status" role="status" class="text-sm text-muted-foreground data-[error]:text-destructive"></span>
       </div>
     </form>
     <script src="options.js"></script>

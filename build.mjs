@@ -1,5 +1,8 @@
 import * as esbuild from "esbuild";
+import { compile, optimize } from "@tailwindcss/node";
+import { Scanner } from "@tailwindcss/oxide";
 import fs from "node:fs";
+import path from "node:path";
 
 const watch = process.argv.includes("--watch");
 const only = process.argv.find((arg) => arg.startsWith("--target="))?.split("=")[1];
@@ -35,6 +38,46 @@ const copyPublic = (target) => {
   fs.writeFileSync(`${outdir}/manifest.json`, JSON.stringify(patchManifest(manifest, target), null, 2) + "\n");
 };
 
+// Tailwind CSS for all UI. Rebuilt on every (re)build, since classes are scanned from src/.
+const STYLES = path.resolve("src/ui/styles.css");
+const buildCss = async () => {
+  const compiler = await compile(fs.readFileSync(STYLES, "utf8"), {
+    base: path.dirname(STYLES),
+    onDependency: () => {},
+  });
+  const css = compiler.build(new Scanner({ sources: compiler.sources }).scan());
+  // Tailwind registers its --tw-* variables with @property and only sets fallback values for
+  // browsers without it. Shadow roots ignore @property, so always apply the fallbacks.
+  const fixed = css.replace(/(@layer properties\s*\{\s*@supports\s*)[^{]+\{/, "$1(display: block) {");
+  if (fixed === css) throw new Error("Tailwind @property fallback not found; check build.mjs");
+  return optimize(fixed, { minify: true }).code;
+};
+
+// `import css from "./x.css"` gives the compiled Tailwind CSS as a string (for shadow roots);
+// the same CSS is written to options.css for the options page.
+const tailwind = (target) => ({
+  name: "tailwind",
+  setup(build) {
+    let css;
+    build.onStart(async () => {
+      css = await buildCss();
+    });
+    build.onResolve({ filter: /\.css$/ }, (args) => ({
+      path: path.resolve(args.resolveDir, args.path),
+      namespace: "tailwind",
+    }));
+    build.onLoad({ filter: /.*/, namespace: "tailwind" }, () => ({
+      contents: css,
+      loader: "text",
+      watchFiles: [STYLES],
+    }));
+    build.onEnd(() => {
+      fs.mkdirSync(`dist/${target.name}`, { recursive: true });
+      fs.writeFileSync(`dist/${target.name}/options.css`, css);
+    });
+  },
+});
+
 fs.rmSync("dist", { recursive: true, force: true });
 
 const contexts = await Promise.all(
@@ -55,6 +98,7 @@ const contexts = await Promise.all(
       loader: { ".png": "dataurl" },
       logLevel: "info",
       plugins: [
+        tailwind(target),
         {
           name: "copy-public",
           setup(build) {
